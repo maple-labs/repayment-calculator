@@ -3,7 +3,7 @@ pragma solidity 0.6.11;
 
 import { SafeMath } from "../../../../lib/openzeppelin-contracts/contracts/math/SafeMath.sol";
 
-import { ILoan } from "../../loan/v1/interfaces/ILoan.sol";
+import { ILoan } from "../../loan/contracts/interfaces/ILoan.sol";
 
 import { IRepaymentCalc } from "./interfaces/IRepaymentCalc.sol";
 
