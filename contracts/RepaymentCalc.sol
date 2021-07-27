@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.6.11;
 
-import { SafeMath } from "../../../../lib/openzeppelin-contracts/contracts/math/SafeMath.sol";
-
-import { ILoan } from "../../loan/contracts/interfaces/ILoan.sol";
+import { SafeMath } from "../../lib/openzeppelin-contracts/contracts/math/SafeMath.sol";
 
 import { IRepaymentCalc } from "./interfaces/IRepaymentCalc.sol";
+
+// TODO: Need to remove below ILoan interface when loan module make it compailable.
+interface ILoan {
+    function principalOwed() external view returns(uint256);
+    function apr() external view returns(uint256);
+    function paymentIntervalSeconds() external view returns(uint256);
+    function paymentsRemaining() external view returns(uint256);
+}
 
 /// @title RepaymentCalc calculates payment amounts on Loans.
 contract RepaymentCalc is IRepaymentCalc {

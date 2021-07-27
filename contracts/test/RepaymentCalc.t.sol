@@ -1,78 +1,45 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.6.11;
-pragma experimental ABIEncoderV2;
 
-import { SafeMath } from "../../../../../lib/openzeppelin-contracts/contracts/math/SafeMath.sol";
-import { IERC20 }   from "../../../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import { SafeMath } from "../../lib/openzeppelin-contracts/contracts/math/SafeMath.sol";
+import { IERC20 }   from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import { TestUtil } from "../../../../test/TestUtil.sol";
+import { DSTest } from "../../lib/ds-test/contracts/test.sol";
 
-contract RepaymentCalcTest is TestUtil {
+import { RepaymentCalc } from "../RepaymentCalc.sol";
+
+contract Loan {
+    uint256 public principalOwed;
+    uint256 public apr;
+    uint256 public paymentIntervalSeconds;
+    uint256 public paymentsRemaining;
+
+    constructor(uint256 _principalOwed, uint256 _apr, uint256 _paymentIntervalSeconds, uint256 _paymentsRemaining) public {
+        apr                    = _apr;
+        principalOwed          = _principalOwed;
+        paymentsRemaining      = _paymentsRemaining;
+        paymentIntervalSeconds = _paymentIntervalSeconds;
+    }
+}
+
+contract RepaymentCalcTest is DSTest {
 
     using SafeMath for uint256;
 
-    function setUp() public {
-        setUpGlobals();
-        setUpPoolDelegate();
-        createBorrower();
-        setUpFactories();
-        setUpCalcs();
-        setUpTokens();
-        setUpOracles();
-        setUpBalancerPool();
-        setUpLiquidityPool();
-    }
+    function test_getNextPayments() public {
+        Loan loan               = new Loan(1000, 30000, 5 * 1 days, 500);
+        RepaymentCalc repayCalc = new RepaymentCalc();
 
-    function test_repayments(uint256 _loanAmt, uint16 apr, uint16 index, uint16 numPayments) public {
-        uint256 loanAmt = constrictToRange(_loanAmt, 10_000 * USD, 100 * 1E9 * USD, true);  // $10k to $100b, non zero
+        // Verify the state variables.
+        assertEq(repayCalc.calcType(), uint256(10),     "Incorrect value of repayment calculator type");
+        assertEq(repayCalc.name(),     "INTEREST_ONLY", "Incorrect value of repayment calculator name");
 
-        apr = apr % 10_000;
+        uint256 interest = loan.principalOwed().mul(loan.apr()).mul(loan.paymentIntervalSeconds()).div(365 days).div(10_000);
 
-        setUpRepayments(loanAmt, uint256(apr), index, numPayments);
-
-        // Calculate theoretical values and sum up actual values
-        uint256 totalPaid;
-        uint256 sumTotal;
-        {
-            uint256 paymentIntervalDays = loan1.paymentIntervalSeconds().div(1 days);
-            uint256 totalInterest       = loanAmt * apr / 10_000 * paymentIntervalDays / 365 * loan1.paymentsRemaining();
-                    totalPaid           = loanAmt + totalInterest;
-        }
-
-        (uint256 lastTotal,, uint256 lastInterest,,) = loan1.getNextPayment();
-
-        mint("USDC",      address(bob),   loanAmt * 1000);  // Mint enough to pay interest
-        bob.approve(USDC, address(loan1), loanAmt * 1000);
-
-        uint256 beforeBal = IERC20(USDC).balanceOf(address(bob));
-
-        while (loan1.paymentsRemaining() > 0) {
-            (uint256 total,      uint256 principal,      uint256 interest,,)    = loan1.getNextPayment();                        // USDC required for payment on loan
-            (uint256 total_calc, uint256 principal_calc, uint256 interest_calc) = repaymentCalc.getNextPayment(address(loan1));  // USDC required for payment on loan
-
-            assertEq(total,         total_calc);
-            assertEq(principal, principal_calc);
-            assertEq(interest,   interest_calc);
-
-            sumTotal += total;
-
-            bob.makePayment(address(loan1));
-
-            if (loan1.paymentsRemaining() > 0) {
-                assertEq(total,        lastTotal);
-                assertEq(interest,  lastInterest);
-                assertEq(total,         interest);
-                assertEq(principal,            0);
-            } else {
-                assertEq(total,     principal + interest);
-                assertEq(principal,              loanAmt);
-                withinPrecision(totalPaid, sumTotal, 8);
-                assertEq(beforeBal - IERC20(USDC).balanceOf(address(bob)), sumTotal);  // Pays back all principal, plus interest
-            }
-
-            lastTotal    = total;
-            lastInterest = interest;
-        }
+        (uint256 r_total, uint256 r_principalOwed, uint256 r_interest) = repayCalc.getNextPayment(address(loan));
+        assertEq(interest,        r_interest);
+        assertEq(interest,        r_total);
+        assertEq(r_principalOwed, 0);
     }
 
 }
