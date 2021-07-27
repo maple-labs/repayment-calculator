@@ -25,9 +25,6 @@ export DAPP_SRC="contracts"
 export DAPP_LINK_TEST_LIBRARIES=0
 export DAPP_STANDARD_JSON=$config
 
-# Workaround for the src folder
-mv -f lib/ds-test/src lib/ds-test/contracts
-
 if [ "$skip_build" = "1" ]; then export DAPP_SKIP_BUILD=1; fi
 
 if [ -z "$test" ]; then match="[contracts/test/*.t.sol]"; dapp_test_verbosity=1; else match=$test; dapp_test_verbosity=2; fi
@@ -35,6 +32,3 @@ if [ -z "$test" ]; then match="[contracts/test/*.t.sol]"; dapp_test_verbosity=1;
 echo LANG=C.UTF-8 dapp test --match "$match" --rpc-url "$ETH_RPC_URL" --verbosity $dapp_test_verbosity --fuzz-runs $runs
 
 LANG=C.UTF-8 dapp test --match "$match" --rpc-url "$ETH_RPC_URL" --verbosity $dapp_test_verbosity --fuzz-runs $runs
-
-# Workaround for the src folder
-mv -f lib/ds-test/contracts lib/ds-test/src

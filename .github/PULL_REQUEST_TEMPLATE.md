@@ -8,9 +8,9 @@
 - [ ] Has all documentation been updated?
 
 # Changelog
-
 ## Function Signature Changes
 
-## Features
+## Features 
 
 ## Events
+
