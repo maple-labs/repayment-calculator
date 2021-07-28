@@ -50,14 +50,14 @@ contract RepaymentCalcTest is DSTest {
 
     function test_getNextPayment() external {
         RepaymentCalc repaymentCalc = new RepaymentCalc();
-        assert_nextPayment(repaymentCalc, 1_000_000, 500, 2, 1_000_000, 1_585,     0,         1_585);
-        assert_nextPayment(repaymentCalc, 1_000_000, 500, 1, 1_000_000, 1_001_585, 1_000_000, 1_585);
-        assert_nextPayment(repaymentCalc, 0,         500, 2, 1_000_000, 0,         0,         0);
-        assert_nextPayment(repaymentCalc, 0,         500, 1, 1_000_000, 1_000_000, 1_000_000, 0);
-        assert_nextPayment(repaymentCalc, 1_000_000, 0,   2, 1_000_000, 0,         0,         0);
-        assert_nextPayment(repaymentCalc, 1_000_000, 0,   1, 1_000_000, 1_000_000, 1_000_000, 0);
-        assert_nextPayment(repaymentCalc, 1_000_000, 500, 2, 0,         0,         0,         0);
-        assert_nextPayment(repaymentCalc, 1_000_000, 500, 1, 0,         0,         0,         0);
+        assert_nextPayment(repaymentCalc, 500, 1_000_000, 2, 1_000_000, 1_585,     0,         1_585);
+        assert_nextPayment(repaymentCalc, 500, 1_000_000, 1, 1_000_000, 1_001_585, 1_000_000, 1_585);
+        assert_nextPayment(repaymentCalc, 0,   1_000_000, 2, 1_000_000, 0,         0,         0);
+        assert_nextPayment(repaymentCalc, 0,   1_000_000, 1, 1_000_000, 1_000_000, 1_000_000, 0);
+        assert_nextPayment(repaymentCalc, 500, 0,         2, 1_000_000, 0,         0,         0);
+        assert_nextPayment(repaymentCalc, 500, 0,         1, 1_000_000, 1_000_000, 1_000_000, 0);
+        assert_nextPayment(repaymentCalc, 500, 1_000_000, 2, 0,         0,         0,         0);
+        assert_nextPayment(repaymentCalc, 500, 1_000_000, 1, 0,         0,         0,         0);
     }
 
 }
