@@ -1,0 +1,8 @@
+name: repayment-calculator
+version: 1.0.0
+source: contracts
+packages:
+  - path: contracts/RepaymentCalc.sol
+    contractName: RepaymentCalc
+    customChecksum: 0xacb51d36f0b742ea827c9c07893b3ecb6f179bf89bb63479d620bd0412b54c88
+customDescription: Repayment Calculator Artifacts and ABIs
